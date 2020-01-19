@@ -55,7 +55,8 @@ int main(int argc, char** argv) {
   printf("%2s %2s %8s %15s %15s %8s %15s %15s %15s\n",
          "n", "k", "iter", "enc avg (us)", "enc total (s)", "iter", "cmp avg (us)", "cmp total (s)", "len (bytes)");
 
-  for (int i = 0; i < nbits_len; i++) {
+  int i, k;
+  for (i = 0; i < nbits_len; i++) {
     ore_params params;
     ERR_CHECK(init_ore_params(params, NBITS[i], OUT_BLK_LEN));
 
@@ -67,7 +68,7 @@ int main(int argc, char** argv) {
 
     clock_t start_time = clock();
     int enc_trials = N_ENC_TRIALS / (i + 1);
-    for (int k = 0; k < enc_trials; k++) {
+    for (k = 0; k < enc_trials; k++) {
       ERR_CHECK(ore_encrypt_ui(ctxt, sk, rand()));
     }
     double enc_time_elapsed = (double)(clock() - start_time) / CLOCKS_PER_SEC;
@@ -80,7 +81,7 @@ int main(int argc, char** argv) {
     ore_encrypt_ui(ctxt, sk, rand());
 
     start_time = clock();
-    for (int k = 0; k < N_CMP_TRIALS; k++) {
+    for (k = 0; k < N_CMP_TRIALS; k++) {
       ore_compare(&res, ctxt, ctxt2);
     }
     double cmp_time_elapsed = (double)(clock() - start_time) / CLOCKS_PER_SEC;

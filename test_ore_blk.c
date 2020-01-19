@@ -82,7 +82,8 @@ int main(int argc, char** argv) {
   printf("Testing ORE... ");
   fflush(stdout);
 
-  for (int i = 0; i < N_TRIALS; i++) {
+  int i;
+  for (i = 0; i < N_TRIALS; i++) {
     if (check_ore_blk() != ERROR_NONE) {
       printf("FAIL\n");
       return -1;

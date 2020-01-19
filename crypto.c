@@ -150,6 +150,7 @@ static int _feistel_round(uint64_t* dst_l, uint64_t* dst_r, const AES_KEY* key,
 static int _feistel_round_batch(uint64_t* dst_l, uint64_t* dst_r, uint32_t nblocks,
                                 const AES_KEY* key, const uint64_t* src_l, const uint64_t* src_r,
                                 uint32_t nbits) {
+  int i;
   memcpy(dst_l, src_r, nblocks * sizeof(uint64_t));
 
   block* prf_inputs = malloc(nblocks * sizeof(block));
@@ -158,14 +159,14 @@ static int _feistel_round_batch(uint64_t* dst_l, uint64_t* dst_r, uint32_t nbloc
     return ERROR_MEMORY_ALLOCATION;
   }
 
-  for (int i = 0; i < nblocks; i++) {
+  for (i = 0; i < nblocks; i++) {
     prf_inputs[i] = MAKE_BLOCK((uint64_t) 0, src_r[i]);
   }
 
   ERR_CHECK(aes_eval_blocks(prf_outputs, nblocks, key, prf_inputs));
 
   uint64_t mask = (((uint64_t) 1) << (nbits / 2)) - 1;
-  for (int i = 0; i < nblocks; i++) {
+  for (i = 0; i < nblocks; i++) {
     uint64_t r = *(uint64_t*) &prf_outputs[i];
     dst_r[i] = src_l[i] ^ (r & mask);
   }
@@ -188,13 +189,14 @@ static int _feistel_round_batch(uint64_t* dst_l, uint64_t* dst_r, uint32_t nbloc
  *         (see errors.h for the full list of possible error codes)
  */
 int _prp_key_expand(AES_KEY* prf_keys, const AES_KEY* prp_key) {
+  int i;
   block feistel_keys[3];
-  for (int i = 0; i < 3; i++) {
+  for (i = 0; i < 3; i++) {
     feistel_keys[i] = MAKE_BLOCK((uint64_t) 0, (uint64_t) i);
   }
   AES_ecb_encrypt_blks_3(feistel_keys, prp_key);
 
-  for (int i = 0; i < 3; i++) {
+  for (i = 0; i < 3; i++) {
     AES_128_Key_Expansion((byte*) feistel_keys + i, prf_keys + i);
   }
 
@@ -244,6 +246,7 @@ int _extract_blocks(uint64_t* val_l, uint64_t* val_r, const byte* src, uint32_t 
  */
 static int _prp_eval_helper(byte* dst, const AES_KEY* key, const byte* src,
                             uint32_t nbits, bool inv) {
+  int i;
   if (nbits % 2 != 0 || nbits > 64) {
     return ERROR_PRP_BITLEN_INVALID;
   }
@@ -260,7 +263,7 @@ static int _prp_eval_helper(byte* dst, const AES_KEY* key, const byte* src,
     val_l = val_r;
     val_r = tmp;
   }
-  for (int i = 0; i < 3; i++) {
+  for (i = 0; i < 3; i++) {
     AES_KEY* round_key = inv ? &keys[2-i] : &keys[i];
     ERR_CHECK(_feistel_round(&val_l_new, &val_r_new, round_key, val_l, val_r, nbits));
 
@@ -302,6 +305,8 @@ int prp_inv_eval(byte* dst, const AES_KEY* key, const byte* src, uint32_t nbits)
  *         (see errors.h for the full list of possible error codes)
  */
 static int _prp_eval_all_helper(uint64_t* dst, const AES_KEY* key, uint32_t nbits, bool inv) {
+  int i;
+
   if (nbits % 2 != 0 || nbits > 16) {
     return ERROR_PRP_BITLEN_INVALID;
   }
@@ -317,7 +322,7 @@ static int _prp_eval_all_helper(uint64_t* dst, const AES_KEY* key, uint32_t nbit
     return ERROR_MEMORY_ALLOCATION;
   }
 
-  for (int i = 0; i < nblocks; i++) {
+  for (i = 0; i < nblocks; i++) {
     _extract_blocks(&val_l[i], &val_r[i], (byte*) &i, nbits);
   }
 
@@ -333,7 +338,7 @@ static int _prp_eval_all_helper(uint64_t* dst, const AES_KEY* key, uint32_t nbit
     val_r = tmp;
   }
 
-  for (int i = 0; i < 3; i++) {
+  for (i = 0; i < 3; i++) {
     AES_KEY *round_key = inv ? &keys[2-i] : &keys[i];
     ERR_CHECK(_feistel_round_batch(val_l_new, val_r_new, nblocks, round_key,
                                    val_l, val_r, nbits));
@@ -348,7 +353,7 @@ static int _prp_eval_all_helper(uint64_t* dst, const AES_KEY* key, uint32_t nbit
     val_r = tmp;
   }
 
-  for (int i = 0; i < nblocks; i++) {
+  for (i = 0; i < nblocks; i++) {
     dst[i] = (val_l[i] << (nbits / 2)) | val_r[i];
   }
 

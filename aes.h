@@ -117,12 +117,13 @@ static inline void AES_ecb_encrypt_blk(block *blk, const AES_KEY *key) {
 static inline void AES_ecb_encrypt_blks(block *blks, int nblks, const AES_KEY *key) {
     unsigned j, rnds = ROUNDS(key);
     const __m128i *sched = ((__m128i *) (key->rd_key));
-    for (int i = 0; i < nblks; ++i)
+    int i;
+    for (i = 0; i < nblks; ++i)
         blks[i] = _mm_xor_si128(blks[i], sched[0]);
     for (j = 1; j < rnds; ++j)
-        for (int i = 0; i < nblks; ++i)
+        for (i = 0; i < nblks; ++i)
             blks[i] = _mm_aesenc_si128(blks[i], sched[j]);
-    for (int i = 0; i < nblks; ++i)
+    for (i = 0; i < nblks; ++i)
         blks[i] = _mm_aesenclast_si128(blks[i], sched[j]);
 }
 

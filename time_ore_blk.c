@@ -56,8 +56,9 @@ int main(int argc, char** argv) {
   printf("%2s %2s %8s %15s %15s %8s %15s %15s %15s\n",
          "n", "k", "iter", "enc avg (us)", "enc total (s)", "iter", "cmp avg (us)", "cmp total (s)", "len (bytes)");
 
-  for (int i = 0; i < nbits_len; i++) {
-    for (int j = 0; j < nblock_len; j++) {
+  int i, j, k;
+  for (i = 0; i < nbits_len; i++) {
+    for (j = 0; j < nblock_len; j++) {
       if (BLOCK_LEN[j] > NBITS[i]) {
         continue;
       }
@@ -75,7 +76,7 @@ int main(int argc, char** argv) {
       clock_t start_time = clock();
       uint32_t enc_trials = 0;
       while(clock() - start_time < CLOCKS_PER_SEC) {
-        for (int k = 0; k < n_trials; k++) {
+        for (k = 0; k < n_trials; k++) {
           ore_blk_encrypt_ui(ctxt, sk, rand());
         }
         enc_trials += n_trials;
@@ -93,7 +94,7 @@ int main(int argc, char** argv) {
       n_trials = CMP_TRIALS[j] * CMP_SCALE;
       start_time = clock();
       while(clock() - start_time < CLOCKS_PER_SEC) {
-        for (int k = 0; k < n_trials; k++) {
+        for (k = 0; k < n_trials; k++) {
          ore_blk_compare(&res, ctxt, ctxt2);
         }
         cmp_trials += n_trials;

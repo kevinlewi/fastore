@@ -1,4 +1,4 @@
-CC = clang
+CC = cc
 INCPATHS = -I/usr/local/include
 CFLAGS = -g -Wall -O3 $(INCPATHS) -march=native
 LDLIBS = -lgmp -lssl -lcrypto

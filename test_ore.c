@@ -90,7 +90,8 @@ int main(int argc, char** argv) {
   printf("Testing ORE... ");
   fflush(stdout);
 
-  for(int i = 0; i < 200; i++) {
+  int i;
+  for(i = 0; i < 200; i++) {
     if(check_ore() != ERROR_NONE) {
       printf("FAIL\n");
       return -1;

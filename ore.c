@@ -111,6 +111,9 @@ int ore_cleanup(ore_secret_key sk) {
  */
 static int _ore_encrypt_buf(ore_ciphertext ctxt, ore_secret_key sk, byte* buf,
     uint32_t buflen) {
+
+  int i;
+
   // assumes little-endian encoding of message bits
 
   if(!sk->initialized) {
@@ -176,7 +179,7 @@ static int _ore_encrypt_buf(ore_ciphertext ctxt, ore_secret_key sk, byte* buf,
   mpz_init(ctxt_block);
 
   uint32_t offset = (8 - (nbits % 8)) % 8;
-  for (int i = 0; i < nbits; i++) {
+  for (i = 0; i < nbits; i++) {
     // get the current bit of the message
     uint32_t byteind = nbytes - 1 - (i + offset) / 8;
     byte mask = msgbuf[byteind] & (1 << ((7 - (i + offset)) % 8));
@@ -265,8 +268,9 @@ int ore_compare(int* result_p, ore_ciphertext ctxt1, ore_ciphertext ctxt2) {
   mpz_t tmp2;
   mpz_init(tmp2);
 
+  int i;
   int res = 0;
-  for (int i = 0; i < nbits; i++) {
+  for (i = 0; i < nbits; i++) {
     // extract the ith ciphertext block
     mpz_and(tmp1, ctxt1_val, block_mask);
     mpz_and(tmp2, ctxt2_val, block_mask);

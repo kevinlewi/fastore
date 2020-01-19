@@ -19,7 +19,7 @@
 #include "flags.h"
 
 #include <gmp.h>
-#include <malloc.h>
+#include <stdlib.h>
 #include <string.h>
 
 // Helper macro for error handling
@@ -183,13 +183,14 @@ int ore_blk_cleanup(ore_blk_secret_key sk) {
    */
   static inline int _eval_keyed_hash_batch_aes_ro(uint8_t* out, uint32_t nblocks,
                                                   const block* keys, const block val) {
+    int i;
     AES_KEY aes_key;
     setup_aes_key(&aes_key, (byte*) &val, sizeof(block));
 
     block* outputs = malloc(nblocks * sizeof(block));
     ERR_CHECK(aes_eval_blocks(outputs, nblocks, &aes_key, keys));
 
-    for (int i = 0; i < nblocks; i++) {
+    for (i = 0; i < nblocks; i++) {
       out[i] = (*(uint8_t*) &outputs[i]) & 1;
     }
 
@@ -303,6 +304,7 @@ static inline int _eval_keyed_hash_batch(uint8_t* out, uint32_t nblocks,
   */
 static int _ore_blk_encrypt_block(byte* comp_left, byte* comp_right, ore_blk_secret_key sk,
                                   block nonce, uint64_t block_ind, uint64_t prefix, uint64_t val) {
+  int i;
   uint32_t block_len = sk->params->block_len;
   uint32_t nslots = 1 << block_len;
 
@@ -327,7 +329,7 @@ static int _ore_blk_encrypt_block(byte* comp_left, byte* comp_right, ore_blk_sec
   // derived from PRF)
   block* inputs = malloc(sizeof(block) * nslots);
   block* keys   = malloc(sizeof(block) * nslots);
-  for (int i = 0; i < nslots; i++) {
+  for (i = 0; i < nslots; i++) {
     inputs[i] = MAKE_BLOCK(block_ind, prefix_shifted | i);
   }
   ERR_CHECK(aes_eval_blocks(keys, nslots, &sk->prf_key, inputs));
@@ -341,7 +343,7 @@ static int _ore_blk_encrypt_block(byte* comp_left, byte* comp_right, ore_blk_sec
   uint8_t* r = malloc(sizeof(uint8_t) * nslots);
   ERR_CHECK(_eval_keyed_hash_batch(r, nslots, keys, nonce));
 
-  for (int i = 0; i < nslots; i++) {
+  for (i = 0; i < nslots; i++) {
     uint8_t v = (pi_inv[i] <= val) ? 1 : 0;
     v ^= r[i];
 
@@ -411,7 +413,8 @@ int ore_blk_encrypt_ui(ore_blk_ciphertext ctxt, ore_blk_secret_key sk, uint64_t 
 
   // process each block
   uint64_t prefix = 0;
-  for(int i = 0; i < nblocks; i++) {
+  int i;
+  for(i = 0; i < nblocks; i++) {
     uint32_t cur_block = msg & block_mask;
     cur_block >>= block_len * (nblocks - i - 1);
 
@@ -459,7 +462,8 @@ int ore_blk_compare(int* result_p, ore_blk_ciphertext ctxt1, ore_blk_ciphertext 
 
   // compare each block
   bool is_equal = true;
-  for (int i = 0; i < nblocks; i++) {
+  int i;
+  for (i = 0; i < nblocks; i++) {
     if (memcmp(ctxt1->comp_left + offset_left, ctxt2->comp_left + offset_left, AES_BLOCK_LEN) != 0) {
       is_equal = false;
       break;
