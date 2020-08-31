@@ -396,7 +396,7 @@ int ore_blk_encrypt_ui(ore_blk_ciphertext ctxt, ore_blk_secret_key sk, uint64_t 
   uint32_t nslots = 1 << block_len;
   uint32_t nblocks = CEIL(nbits, block_len);
 
-  uint32_t block_mask = (1 << block_len) - 1;
+  uint64_t block_mask = (1 << block_len) - 1;
   block_mask <<= (block_len * (nblocks - 1));
 
   // choose nonce
@@ -415,7 +415,7 @@ int ore_blk_encrypt_ui(ore_blk_ciphertext ctxt, ore_blk_secret_key sk, uint64_t 
   uint64_t prefix = 0;
   int i;
   for(i = 0; i < nblocks; i++) {
-    uint32_t cur_block = msg & block_mask;
+    uint64_t cur_block = msg & block_mask;
     cur_block >>= block_len * (nblocks - i - 1);
 
     block_mask >>= block_len;

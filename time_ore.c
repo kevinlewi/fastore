@@ -32,7 +32,8 @@ static int _err;
  */
 int main(int argc, char** argv) {
   const uint32_t NBITS[] = {8, 16, 24, 32, 48, 64};
-  const uint32_t OUT_BLK_LEN = 2;
+  //const uint32_t OUT_BLK_LEN = 2;
+  const uint32_t OUT_BLK_LEN = 8;
 #ifdef USE_AES
   const int N_ENC_TRIALS = 2000000;
   const int N_CMP_TRIALS = 2000000;

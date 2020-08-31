@@ -37,11 +37,11 @@ static const int N_TRIALS = 500;
  * encryption or comparison phase
  */
 static int check_ore_blk() {
-  int nbits = 32;
+  int nbits = 64;
   int block_len = 8;
 
-  uint64_t n1 = rand() % (((uint64_t) 1) << nbits);
-  uint64_t n2 = rand() % (((uint64_t) 1) << nbits);
+  uint64_t n1 = (((uint64_t) 1) << nbits) - rand();
+  uint64_t n2 = (((uint64_t) 1) << nbits) - rand();
 
   int cmp = (n1 < n2) ? -1 : 1;
   if (n1 == n2) {
